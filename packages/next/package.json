@@ -1,6 +1,6 @@
 {
   "name": "@carnil/next",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Next.js integration for Carnil Payments SDK",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -24,7 +24,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@carnil/core": "^0.1.0",
+    "@carnil/core": "^0.1.1",
     "next": "^14.0.0"
   },
   "keywords": [
