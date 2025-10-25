@@ -24,7 +24,33 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@carnil/core": "workspace:*"
+    "@carnil/core": "^0.1.0"
+  },
+  "keywords": [
+    "payments",
+    "adapters",
+    "express",
+    "hono",
+    "sdk",
+    "typescript"
+  ],
+  "author": {
+    "name": "Carnil Team",
+    "email": "hello@carnil.com",
+    "url": "https://carnil.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/carnil/carnil-sdk.git",
+    "directory": "packages/adapters"
+  },
+  "bugs": {
+    "url": "https://github.com/carnil/carnil-sdk/issues"
+  },
+  "homepage": "https://carnil.com",
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
