@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Carnil, CarnilConfig } from '@carnil/core';
 
 // ============================================================================
@@ -6,13 +6,13 @@ import { Carnil, CarnilConfig } from '@carnil/core';
 // ============================================================================
 
 interface CarnilContextValue {
-  carnil: Carnil | null;
+  carnil: Carnil | undefined;
   isLoading: boolean;
   error: string | null;
   config: CarnilConfig | null;
 }
 
-const CarnilContext = createContext<CarnilContextValue | null>(null);
+const CarnilContext = createContext<CarnilContextValue | undefined>(undefined);
 
 // ============================================================================
 // Carnil Provider Props
@@ -35,7 +35,7 @@ export function CarnilProvider({
   fallback,
   onError,
 }: CarnilProviderProps) {
-  const [carnil, setCarnil] = useState<Carnil | null>(null);
+  const [carnil, setCarnil] = useState<Carnil | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

@@ -30,8 +30,8 @@ export function createCarnilHonoHandler(config: HonoCarnilConfig) {
       }
 
       // Extract customer information
-      const { customerId, customerData } = await config.identify(c);
-      
+      const { customerId } = await config.identify(c);
+
       if (!customerId) {
         return c.json({ error: 'Customer ID is required' }, 401);
       }
@@ -90,7 +90,7 @@ export function createCarnilHonoHandler(config: HonoCarnilConfig) {
           result = await carnil.updateSubscription(params.id, params.updates);
           break;
         case 'cancelSubscription':
-          result = await carnil.cancelSubscription(params.id, params.immediately);
+          result = await carnil.cancelSubscription(params.id);
           break;
         case 'listSubscriptions':
           result = await carnil.listSubscriptions(params.request);
@@ -139,14 +139,16 @@ export function createCarnilHonoHandler(config: HonoCarnilConfig) {
       }
 
       return c.json(result);
-
     } catch (error) {
       console.error('Carnil Hono handler error:', error);
-      
-      return c.json({
-        error: error instanceof Error ? error.message : 'Internal server error',
-        success: false
-      }, 500);
+
+      return c.json(
+        {
+          error: error instanceof Error ? error.message : 'Internal server error',
+          success: false,
+        },
+        500
+      );
     }
   };
 }
@@ -164,10 +166,11 @@ export function createCarnilHonoWebhookHandler(config: HonoCarnilConfig) {
   return async function carnilHonoWebhookHandler(c: Context) {
     try {
       const body = await c.req.text();
-      const signature = c.req.header('stripe-signature') || 
-                      c.req.header('razorpay-signature') || 
-                      c.req.header('x-signature') || 
-                      '';
+      const signature =
+        c.req.header('stripe-signature') ||
+        c.req.header('razorpay-signature') ||
+        c.req.header('x-signature') ||
+        '';
 
       const webhookSecret = config.provider.webhookSecret;
       if (!webhookSecret) {
@@ -188,13 +191,15 @@ export function createCarnilHonoWebhookHandler(config: HonoCarnilConfig) {
       console.log('Webhook event received:', event);
 
       return c.json({ received: true });
-
     } catch (error) {
       console.error('Carnil Hono webhook handler error:', error);
-      
-      return c.json({
-        error: error instanceof Error ? error.message : 'Internal server error'
-      }, 500);
+
+      return c.json(
+        {
+          error: error instanceof Error ? error.message : 'Internal server error',
+        },
+        500
+      );
     }
   };
 }
@@ -205,23 +210,23 @@ export function createCarnilHonoWebhookHandler(config: HonoCarnilConfig) {
 
 export function setupCarnilHono(app: Hono, config: HonoCarnilConfig) {
   // Add CORS middleware
-  app.use('*', async (c, next) => {
+  app.use('*', async (c: any, next: any) => {
     c.header('Access-Control-Allow-Origin', '*');
     c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
+
     if (config.corsHeaders) {
       Object.entries(config.corsHeaders).forEach(([key, value]) => {
         c.header(key, value);
       });
     }
-    
+
     await next();
   });
 
   // Mount Carnil handler
   app.post('/api/carnil', createCarnilHonoHandler(config));
-  
+
   // Mount webhook handler
   app.post('/api/carnil/webhook', createCarnilHonoWebhookHandler(config));
 }

@@ -22,7 +22,7 @@ export function createCarnilExpressHandler(config: ExpressCarnilConfig) {
     debug: config.debug,
   });
 
-  return async function carnilExpressHandler(req: Request, res: Response, next: NextFunction) {
+  return async function carnilExpressHandler(req: Request, res: Response, _next: NextFunction) {
     try {
       // Handle CORS preflight
       if (req.method === 'OPTIONS') {
@@ -31,8 +31,8 @@ export function createCarnilExpressHandler(config: ExpressCarnilConfig) {
       }
 
       // Extract customer information
-      const { customerId, customerData } = await config.identify(req);
-      
+      const { customerId } = await config.identify(req);
+
       if (!customerId) {
         res.status(401).json({ error: 'Customer ID is required' });
         return;
@@ -91,7 +91,7 @@ export function createCarnilExpressHandler(config: ExpressCarnilConfig) {
           result = await carnil.updateSubscription(params.id, params.updates);
           break;
         case 'cancelSubscription':
-          result = await carnil.cancelSubscription(params.id, params.immediately);
+          result = await carnil.cancelSubscription(params.id);
           break;
         case 'listSubscriptions':
           result = await carnil.listSubscriptions(params.request);
@@ -141,13 +141,12 @@ export function createCarnilExpressHandler(config: ExpressCarnilConfig) {
       }
 
       res.json(result);
-
     } catch (error) {
       console.error('Carnil Express handler error:', error);
-      
+
       res.status(500).json({
         error: error instanceof Error ? error.message : 'Internal server error',
-        success: false
+        success: false,
       });
     }
   };
@@ -163,13 +162,18 @@ export function createCarnilExpressWebhookHandler(config: ExpressCarnilConfig) {
     debug: config.debug,
   });
 
-  return async function carnilExpressWebhookHandler(req: Request, res: Response, next: NextFunction) {
+  return async function carnilExpressWebhookHandler(
+    req: Request,
+    res: Response,
+    _next: NextFunction
+  ) {
     try {
       const body = JSON.stringify(req.body);
-      const signature = req.headers['stripe-signature'] as string || 
-                      req.headers['razorpay-signature'] as string || 
-                      req.headers['x-signature'] as string || 
-                      '';
+      const signature =
+        (req.headers['stripe-signature'] as string) ||
+        (req.headers['razorpay-signature'] as string) ||
+        (req.headers['x-signature'] as string) ||
+        '';
 
       const webhookSecret = config.provider.webhookSecret;
       if (!webhookSecret) {
@@ -192,12 +196,11 @@ export function createCarnilExpressWebhookHandler(config: ExpressCarnilConfig) {
       console.log('Webhook event received:', event);
 
       res.json({ received: true });
-
     } catch (error) {
       console.error('Carnil Express webhook handler error:', error);
-      
+
       res.status(500).json({
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? error.message : 'Internal server error',
       });
     }
   };
@@ -209,23 +212,23 @@ export function createCarnilExpressWebhookHandler(config: ExpressCarnilConfig) {
 
 export function setupCarnilExpress(app: any, config: ExpressCarnilConfig) {
   // Add CORS headers
-  app.use((req: Request, res: Response, next: NextFunction) => {
+  app.use((_req: Request, res: Response, next: NextFunction) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
+
     if (config.corsHeaders) {
       Object.entries(config.corsHeaders).forEach(([key, value]) => {
         res.header(key, value);
       });
     }
-    
+
     next();
   });
 
   // Mount Carnil handler
   app.use('/api/carnil', createCarnilExpressHandler(config));
-  
+
   // Mount webhook handler
   app.use('/api/carnil/webhook', createCarnilExpressWebhookHandler(config));
 }

@@ -38,18 +38,15 @@ export function createCarnilHandler(config: CarnilHandlerConfig) {
       }
 
       // Extract customer information
-      const { customerId, customerData } = await config.identify(req);
-      
+      const { customerId } = await config.identify(req);
+
       if (!customerId) {
-        return NextResponse.json(
-          { error: 'Customer ID is required' },
-          { status: 401 }
-        );
+        return NextResponse.json({ error: 'Customer ID is required' }, { status: 401 });
       }
 
       // Parse the request body
       const body = await req.json().catch(() => ({}));
-      const { action, ...params } = body;
+      const { action, ...params } = body as any;
 
       // Route the request based on action
       let result: any;
@@ -101,10 +98,10 @@ export function createCarnilHandler(config: CarnilHandlerConfig) {
           result = await carnil.updateSubscription(params.id, params.updates);
           break;
         case 'cancelSubscription':
-          result = await carnil.cancelSubscription(params.id, params.immediately);
+          result = await carnil.cancelSubscription(params.id);
           break;
         case 'listSubscriptions':
-          result = await carnil.listSubscriptions(params.request);
+          result = await carnil.listSubscriptions(params);
           break;
         case 'createInvoice':
           result = await carnil.createInvoice(params);
@@ -146,10 +143,7 @@ export function createCarnilHandler(config: CarnilHandlerConfig) {
           result = await carnil.getAIUsageMetrics(params.customerId, params.modelId, params.period);
           break;
         default:
-          return NextResponse.json(
-            { error: `Unknown action: ${action}` },
-            { status: 400 }
-          );
+          return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 });
       }
 
       return NextResponse.json(result, {
@@ -160,16 +154,15 @@ export function createCarnilHandler(config: CarnilHandlerConfig) {
           ...config.corsHeaders,
         },
       });
-
     } catch (error) {
       console.error('Carnil handler error:', error);
-      
+
       return NextResponse.json(
-        { 
+        {
           error: error instanceof Error ? error.message : 'Internal server error',
-          success: false 
+          success: false,
         },
-        { 
+        {
           status: 500,
           headers: {
             'Access-Control-Allow-Origin': '*',
@@ -196,26 +189,21 @@ export function createCarnilWebhookHandler(config: CarnilHandlerConfig) {
   return async function carnilWebhookHandler(req: NextRequest) {
     try {
       const body = await req.text();
-      const signature = req.headers.get('stripe-signature') || 
-                      req.headers.get('razorpay-signature') || 
-                      req.headers.get('x-signature') || 
-                      '';
+      const signature =
+        req.headers.get('stripe-signature') ||
+        req.headers.get('razorpay-signature') ||
+        req.headers.get('x-signature') ||
+        '';
 
       const webhookSecret = config.provider.webhookSecret;
       if (!webhookSecret) {
-        return NextResponse.json(
-          { error: 'Webhook secret not configured' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 400 });
       }
 
       // Verify webhook signature
       const isValid = await carnil.verifyWebhook(body, signature, webhookSecret);
       if (!isValid) {
-        return NextResponse.json(
-          { error: 'Invalid webhook signature' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 400 });
       }
 
       // Parse webhook event
@@ -226,13 +214,12 @@ export function createCarnilWebhookHandler(config: CarnilHandlerConfig) {
       console.log('Webhook event received:', event);
 
       return NextResponse.json({ received: true });
-
     } catch (error) {
       console.error('Carnil webhook handler error:', error);
-      
+
       return NextResponse.json(
-        { 
-          error: error instanceof Error ? error.message : 'Internal server error' 
+        {
+          error: error instanceof Error ? error.message : 'Internal server error',
         },
         { status: 500 }
       );
@@ -254,119 +241,119 @@ export function createCarnilServerActions(config: CarnilHandlerConfig) {
     async createCustomer(params: any) {
       return await carnil.createCustomer(params);
     },
-    
+
     async getCustomer(id: string) {
       return await carnil.getCustomer(id);
     },
-    
+
     async updateCustomer(id: string, updates: any) {
       return await carnil.updateCustomer(id, updates);
     },
-    
+
     async deleteCustomer(id: string) {
       return await carnil.deleteCustomer(id);
     },
-    
+
     async listCustomers(request?: any) {
       return await carnil.listCustomers(request);
     },
-    
+
     async createPaymentIntent(params: any) {
       return await carnil.createPaymentIntent(params);
     },
-    
+
     async getPaymentIntent(id: string) {
       return await carnil.getPaymentIntent(id);
     },
-    
+
     async updatePaymentIntent(id: string, updates: any) {
       return await carnil.updatePaymentIntent(id, updates);
     },
-    
+
     async cancelPaymentIntent(id: string) {
       return await carnil.cancelPaymentIntent(id);
     },
-    
+
     async confirmPaymentIntent(id: string, paymentMethodId?: string) {
       return await carnil.confirmPaymentIntent(id, paymentMethodId);
     },
-    
+
     async capturePaymentIntent(id: string, amount?: number) {
       return await carnil.capturePaymentIntent(id, amount);
     },
-    
+
     async listPaymentIntents(request?: any) {
       return await carnil.listPaymentIntents(request);
     },
-    
+
     async createSubscription(params: any) {
       return await carnil.createSubscription(params);
     },
-    
+
     async getSubscription(id: string) {
       return await carnil.getSubscription(id);
     },
-    
+
     async updateSubscription(id: string, updates: any) {
       return await carnil.updateSubscription(id, updates);
     },
-    
-    async cancelSubscription(id: string, immediately?: boolean) {
-      return await carnil.cancelSubscription(id, immediately);
+
+    async cancelSubscription(id: string) {
+      return await carnil.cancelSubscription(id);
     },
-    
+
     async listSubscriptions(request?: any) {
       return await carnil.listSubscriptions(request);
     },
-    
+
     async createInvoice(params: any) {
       return await carnil.createInvoice(params);
     },
-    
+
     async getInvoice(id: string) {
       return await carnil.getInvoice(id);
     },
-    
+
     async updateInvoice(id: string, updates: any) {
       return await carnil.updateInvoice(id, updates);
     },
-    
+
     async finalizeInvoice(id: string) {
       return await carnil.finalizeInvoice(id);
     },
-    
+
     async payInvoice(id: string, paymentMethodId?: string) {
       return await carnil.payInvoice(id, paymentMethodId);
     },
-    
+
     async listInvoices(request?: any) {
       return await carnil.listInvoices(request);
     },
-    
+
     async createRefund(params: any) {
       return await carnil.createRefund(params);
     },
-    
+
     async getRefund(id: string) {
       return await carnil.getRefund(id);
     },
-    
+
     async listRefunds(paymentId?: string) {
       return await carnil.listRefunds(paymentId);
     },
-    
+
     async trackUsage(metrics: any) {
       return await carnil.trackUsage(metrics);
     },
-    
+
     async trackAIUsage(metrics: any) {
       return await carnil.trackAIUsage(metrics);
     },
-    
+
     async getUsageMetrics(customerId: string, featureId: string, period: string) {
       return await carnil.getUsageMetrics(customerId, featureId, period);
     },
-    
+
     async getAIUsageMetrics(customerId: string, modelId?: string, period?: string) {
       return await carnil.getAIUsageMetrics(customerId, modelId, period);
     },
