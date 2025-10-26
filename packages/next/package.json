@@ -47,9 +47,10 @@
     "access": "public"
   },
   "dependencies": {
-    "@carnil/core": "workspace:*"
+    "@carnil/core": "latest"
   },
   "peerDependencies": {
     "next": "^14.0.0 || ^15.0.0"
-  }
+  },
+  "packageManager": "pnpm@8.15.1"
 }
