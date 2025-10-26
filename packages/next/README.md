@@ -33,15 +33,15 @@ npm install next@^14.0.0 || next@^15.0.0
 
 ```typescript
 // app/api/carnil/route.ts
-import { createCarnilHandler } from '@carnil/next';
+import { createCarnilHandler } from "@carnil/next";
 
 export const POST = createCarnilHandler({
   provider: {
-    provider: 'stripe',
+    provider: "stripe",
     apiKey: process.env.STRIPE_API_KEY!,
-    webhookSecret: process.env.WEBHOOK_SECRET!
+    webhookSecret: process.env.WEBHOOK_SECRET!,
   },
-  debug: process.env.NODE_ENV === 'development'
+  debug: process.env.NODE_ENV === "development",
 });
 ```
 
@@ -49,15 +49,15 @@ export const POST = createCarnilHandler({
 
 ```typescript
 // pages/api/carnil.ts
-import { createCarnilHandler } from '@carnil/next';
+import { createCarnilHandler } from "@carnil/next";
 
 export default createCarnilHandler({
   provider: {
-    provider: 'stripe',
+    provider: "stripe",
     apiKey: process.env.STRIPE_API_KEY!,
-    webhookSecret: process.env.WEBHOOK_SECRET!
+    webhookSecret: process.env.WEBHOOK_SECRET!,
   },
-  debug: process.env.NODE_ENV === 'development'
+  debug: process.env.NODE_ENV === "development",
 });
 ```
 
@@ -93,14 +93,14 @@ function createMiddleware(config: MiddlewareConfig): NextMiddleware;
 
 ```typescript
 // app/api/payments/route.ts
-import { createCarnilHandler } from '@carnil/next';
+import { createCarnilHandler } from "@carnil/next";
 
 export const POST = createCarnilHandler({
   provider: {
-    provider: 'stripe',
+    provider: "stripe",
     apiKey: process.env.STRIPE_API_KEY!,
-    webhookSecret: process.env.WEBHOOK_SECRET!
-  }
+    webhookSecret: process.env.WEBHOOK_SECRET!,
+  },
 });
 
 // Usage:
@@ -112,14 +112,14 @@ export const POST = createCarnilHandler({
 
 ```typescript
 // app/api/customers/route.ts
-import { createCarnilHandler } from '@carnil/next';
+import { createCarnilHandler } from "@carnil/next";
 
 export const POST = createCarnilHandler({
   provider: {
-    provider: 'stripe',
+    provider: "stripe",
     apiKey: process.env.STRIPE_API_KEY!,
-    webhookSecret: process.env.WEBHOOK_SECRET!
-  }
+    webhookSecret: process.env.WEBHOOK_SECRET!,
+  },
 });
 
 // Usage:
@@ -131,14 +131,14 @@ export const POST = createCarnilHandler({
 
 ```typescript
 // app/api/subscriptions/route.ts
-import { createCarnilHandler } from '@carnil/next';
+import { createCarnilHandler } from "@carnil/next";
 
 export const POST = createCarnilHandler({
   provider: {
-    provider: 'stripe',
+    provider: "stripe",
     apiKey: process.env.STRIPE_API_KEY!,
-    webhookSecret: process.env.WEBHOOK_SECRET!
-  }
+    webhookSecret: process.env.WEBHOOK_SECRET!,
+  },
 });
 
 // Usage:
@@ -152,24 +152,24 @@ export const POST = createCarnilHandler({
 
 ```typescript
 // app/api/webhooks/route.ts
-import { createWebhookHandler } from '@carnil/next';
+import { createWebhookHandler } from "@carnil/next";
 
 export const POST = createWebhookHandler({
   webhookSecret: process.env.WEBHOOK_SECRET!,
   handlers: {
-    'payment.succeeded': async (event) => {
-      console.log('Payment succeeded:', event.data);
+    "payment.succeeded": async (event) => {
+      console.log("Payment succeeded:", event.data);
       // Handle payment success
     },
-    'payment.failed': async (event) => {
-      console.log('Payment failed:', event.data);
+    "payment.failed": async (event) => {
+      console.log("Payment failed:", event.data);
       // Handle payment failure
     },
-    'subscription.created': async (event) => {
-      console.log('Subscription created:', event.data);
+    "subscription.created": async (event) => {
+      console.log("Subscription created:", event.data);
       // Handle subscription creation
-    }
-  }
+    },
+  },
 });
 ```
 
@@ -177,38 +177,38 @@ export const POST = createWebhookHandler({
 
 ```typescript
 // app/api/webhooks/route.ts
-import { createWebhookHandler } from '@carnil/next';
-import { db } from '@/lib/db';
+import { createWebhookHandler } from "@carnil/next";
+import { db } from "@/lib/db";
 
 export const POST = createWebhookHandler({
   webhookSecret: process.env.WEBHOOK_SECRET!,
   handlers: {
-    'payment.succeeded': async (event) => {
+    "payment.succeeded": async (event) => {
       const { paymentId, customerId, amount } = event.data;
-      
+
       // Update database
       await db.payment.update({
         where: { id: paymentId },
-        data: { status: 'succeeded' }
+        data: { status: "succeeded" },
       });
-      
+
       // Send confirmation email
       await sendConfirmationEmail(customerId, amount);
     },
-    'subscription.created': async (event) => {
+    "subscription.created": async (event) => {
       const { subscriptionId, customerId, planId } = event.data;
-      
+
       // Create subscription record
       await db.subscription.create({
         data: {
           id: subscriptionId,
           customerId,
           planId,
-          status: 'active'
-        }
+          status: "active",
+        },
       });
-    }
-  }
+    },
+  },
 });
 ```
 
@@ -218,25 +218,25 @@ export const POST = createWebhookHandler({
 
 ```typescript
 // middleware.ts
-import { createMiddleware } from '@carnil/next';
+import { createMiddleware } from "@carnil/next";
 
 export default createMiddleware({
   logging: {
     enabled: true,
-    level: 'info'
+    level: "info",
   },
   security: {
     enableCORS: true,
     enableRateLimit: true,
     rateLimitOptions: {
       windowMs: 15 * 60 * 1000, // 15 minutes
-      max: 100 // limit each IP to 100 requests per windowMs
-    }
-  }
+      max: 100, // limit each IP to 100 requests per windowMs
+    },
+  },
 });
 
 export const config = {
-  matcher: '/api/:path*'
+  matcher: "/api/:path*",
 };
 ```
 
@@ -244,8 +244,8 @@ export const config = {
 
 ```typescript
 // middleware.ts
-import { createMiddleware } from '@carnil/next';
-import { NextRequest } from 'next/server';
+import { createMiddleware } from "@carnil/next";
+import { NextRequest } from "next/server";
 
 export default createMiddleware({
   authentication: {
@@ -253,19 +253,19 @@ export default createMiddleware({
     verifyToken: async (token: string) => {
       // Verify JWT token
       return verifyJWT(token);
-    }
+    },
   },
   authorization: {
     enabled: true,
     checkPermission: async (user: any, resource: string, action: string) => {
       // Check user permissions
       return checkPermission(user, resource, action);
-    }
-  }
+    },
+  },
 });
 
 export const config = {
-  matcher: '/api/:path*'
+  matcher: "/api/:path*",
 };
 ```
 
@@ -275,24 +275,24 @@ export const config = {
 
 ```tsx
 // app/components/PaymentForm.tsx
-import { createServerComponent } from '@carnil/next';
+import { createServerComponent } from "@carnil/next";
 
 export const PaymentForm = createServerComponent({
-  name: 'PaymentForm',
+  name: "PaymentForm",
   serverAction: async (formData: FormData) => {
-    'use server';
-    
-    const amount = formData.get('amount') as string;
-    const currency = formData.get('currency') as string;
-    
+    "use server";
+
+    const amount = formData.get("amount") as string;
+    const currency = formData.get("currency") as string;
+
     // Create payment intent
     const paymentIntent = await carnil.createPaymentIntent({
       amount: parseInt(amount),
-      currency: currency
+      currency: currency,
     });
-    
+
     return paymentIntent;
-  }
+  },
 });
 
 // Usage in page
@@ -310,24 +310,24 @@ export default function CheckoutPage() {
 
 ```tsx
 // app/components/CustomerDashboard.tsx
-import { createServerComponent } from '@carnil/next';
+import { createServerComponent } from "@carnil/next";
 
 export const CustomerDashboard = createServerComponent({
-  name: 'CustomerDashboard',
+  name: "CustomerDashboard",
   serverAction: async (customerId: string) => {
-    'use server';
-    
+    "use server";
+
     // Fetch customer data
     const customer = await carnil.getCustomer(customerId);
     const paymentMethods = await carnil.listPaymentMethods(customerId);
     const subscriptions = await carnil.listSubscriptions({ customerId });
-    
+
     return {
       customer,
       paymentMethods,
-      subscriptions
+      subscriptions,
     };
-  }
+  },
 });
 
 // Usage in page
@@ -347,49 +347,49 @@ export default function CustomerPage({ params }: { params: { id: string } }) {
 
 ```tsx
 // app/components/PaymentButton.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { createClientComponent } from '@carnil/next';
+import { useState } from "react";
+import { createClientComponent } from "@carnil/next";
 
 export const PaymentButton = createClientComponent({
-  name: 'PaymentButton',
+  name: "PaymentButton",
   clientAction: async (amount: number, currency: string) => {
-    const response = await fetch('/api/payments', {
-      method: 'POST',
+    const response = await fetch("/api/payments", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        action: 'createPaymentIntent',
-        data: { amount, currency }
-      })
+        action: "createPaymentIntent",
+        data: { amount, currency },
+      }),
     });
-    
+
     const result = await response.json();
     return result;
-  }
+  },
 });
 
 // Usage
 export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
-  
+
   const handlePayment = async () => {
     setLoading(true);
     try {
-      const result = await PaymentButton.clientAction(2000, 'usd');
-      console.log('Payment created:', result);
+      const result = await PaymentButton.clientAction(2000, "usd");
+      console.log("Payment created:", result);
     } catch (error) {
-      console.error('Payment failed:', error);
+      console.error("Payment failed:", error);
     } finally {
       setLoading(false);
     }
   };
-  
+
   return (
     <button onClick={handlePayment} disabled={loading}>
-      {loading ? 'Processing...' : 'Pay $20.00'}
+      {loading ? "Processing..." : "Pay $20.00"}
     </button>
   );
 }
@@ -417,13 +417,13 @@ NEXT_PUBLIC_CARNIL_ENVIRONMENT=test
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverActions: true
+    serverActions: true,
   },
   env: {
     CARNIL_PROVIDER: process.env.CARNIL_PROVIDER,
     STRIPE_API_KEY: process.env.STRIPE_API_KEY,
-    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET
-  }
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+  },
 };
 
 module.exports = nextConfig;
@@ -435,37 +435,34 @@ module.exports = nextConfig;
 
 ```typescript
 // app/api/payments/route.ts
-import { createCarnilHandler } from '@carnil/next';
-import { NextRequest, NextResponse } from 'next/server';
+import { createCarnilHandler } from "@carnil/next";
+import { NextRequest, NextResponse } from "next/server";
 
 export const POST = createCarnilHandler({
   provider: {
-    provider: 'stripe',
+    provider: "stripe",
     apiKey: process.env.STRIPE_API_KEY!,
-    webhookSecret: process.env.WEBHOOK_SECRET!
+    webhookSecret: process.env.WEBHOOK_SECRET!,
   },
   errorHandler: (error, req) => {
-    console.error('Payment API error:', error);
-    
-    if (error.code === 'INVALID_REQUEST') {
-      return NextResponse.json(
-        { error: 'Invalid request' },
-        { status: 400 }
-      );
+    console.error("Payment API error:", error);
+
+    if (error.code === "INVALID_REQUEST") {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
-    
-    if (error.code === 'AUTHENTICATION_ERROR') {
+
+    if (error.code === "AUTHENTICATION_ERROR") {
       return NextResponse.json(
-        { error: 'Authentication failed' },
+        { error: "Authentication failed" },
         { status: 401 }
       );
     }
-    
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
-  }
+  },
 });
 ```
 
@@ -473,34 +470,34 @@ export const POST = createCarnilHandler({
 
 ```typescript
 // app/api/webhooks/route.ts
-import { createWebhookHandler } from '@carnil/next';
+import { createWebhookHandler } from "@carnil/next";
 
 export const POST = createWebhookHandler({
   webhookSecret: process.env.WEBHOOK_SECRET!,
   handlers: {
-    'payment.succeeded': async (event) => {
+    "payment.succeeded": async (event) => {
       try {
         // Handle payment success
         await handlePaymentSuccess(event.data);
       } catch (error) {
-        console.error('Failed to handle payment success:', error);
+        console.error("Failed to handle payment success:", error);
         throw error; // Re-throw to trigger retry
       }
-    }
+    },
   },
   errorHandler: (error, event) => {
-    console.error('Webhook error:', error);
-    
+    console.error("Webhook error:", error);
+
     // Log error for debugging
-    console.error('Event data:', event.data);
-    
+    console.error("Event data:", event.data);
+
     // Return appropriate status code
-    if (error.code === 'INVALID_SIGNATURE') {
-      return { status: 401, message: 'Invalid signature' };
+    if (error.code === "INVALID_SIGNATURE") {
+      return { status: 401, message: "Invalid signature" };
     }
-    
-    return { status: 500, message: 'Internal server error' };
-  }
+
+    return { status: 500, message: "Internal server error" };
+  },
 });
 ```
 
@@ -510,25 +507,25 @@ export const POST = createWebhookHandler({
 
 ```typescript
 // __tests__/api/payments.test.ts
-import { POST } from '@/app/api/payments/route';
-import { NextRequest } from 'next/server';
+import { POST } from "@/app/api/payments/route";
+import { NextRequest } from "next/server";
 
-describe('/api/payments', () => {
-  it('should create payment intent', async () => {
-    const request = new NextRequest('http://localhost:3000/api/payments', {
-      method: 'POST',
+describe("/api/payments", () => {
+  it("should create payment intent", async () => {
+    const request = new NextRequest("http://localhost:3000/api/payments", {
+      method: "POST",
       body: JSON.stringify({
-        action: 'createPaymentIntent',
-        data: { amount: 2000, currency: 'usd' }
-      })
+        action: "createPaymentIntent",
+        data: { amount: 2000, currency: "usd" },
+      }),
     });
-    
+
     const response = await POST(request);
     const data = await response.json();
-    
+
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
-    expect(data.data).toHaveProperty('id');
+    expect(data.data).toHaveProperty("id");
   });
 });
 ```
@@ -537,26 +534,29 @@ describe('/api/payments', () => {
 
 ```typescript
 // __tests__/api/webhooks.test.ts
-import { POST } from '@/app/api/webhooks/route';
-import { NextRequest } from 'next/server';
+import { POST } from "@/app/api/webhooks/route";
+import { NextRequest } from "next/server";
 
-describe('/api/webhooks', () => {
-  it('should handle payment succeeded webhook', async () => {
+describe("/api/webhooks", () => {
+  it("should handle payment succeeded webhook", async () => {
     const payload = JSON.stringify({
-      type: 'payment.succeeded',
-      data: { paymentId: 'pi_123', amount: 2000 }
+      type: "payment.succeeded",
+      data: { paymentId: "pi_123", amount: 2000 },
     });
-    
-    const signature = generateWebhookSignature(payload, process.env.WEBHOOK_SECRET!);
-    
-    const request = new NextRequest('http://localhost:3000/api/webhooks', {
-      method: 'POST',
+
+    const signature = generateWebhookSignature(
+      payload,
+      process.env.WEBHOOK_SECRET!
+    );
+
+    const request = new NextRequest("http://localhost:3000/api/webhooks", {
+      method: "POST",
       headers: {
-        'x-webhook-signature': signature
+        "x-webhook-signature": signature,
       },
-      body: payload
+      body: payload,
     });
-    
+
     const response = await POST(request);
     expect(response.status).toBe(200);
   });
