@@ -1,0 +1,68 @@
+{
+  "name": "@carnil/adapters",
+  "version": "0.2.0",
+  "description": "Framework adapters for Carnil unified payments platform",
+  "private": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts,.tsx",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "payments",
+    "adapters",
+    "framework",
+    "sdk",
+    "typescript",
+    "carnil"
+  ],
+  "author": "Carnil Team <hello@carnil.dev> (https://carnil.dev)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Carnil-Dev/carnil-sdk.git",
+    "directory": "packages/adapters"
+  },
+  "bugs": {
+    "url": "https://github.com/Carnil-Dev/carnil-sdk/issues"
+  },
+  "homepage": "https://carnil.dev",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@carnil/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "express": "^4.0.0",
+    "hono": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "express": {
+      "optional": true
+    },
+    "hono": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.4"
+  }
+}
