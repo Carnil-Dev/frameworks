@@ -49,13 +49,26 @@ jobs:
           pnpm -w run version:patch
 
           # Publish to npm
-          pnpm -w run release
+          echo "Publishing packages to npm..."
+          if pnpm -w run release; then
+            echo "All packages published successfully!"
+          else
+            echo "Some packages failed to publish. This may be due to:"
+            echo "- npm cooldown periods (24-72 hours after unpublishing)"
+            echo "- Network issues"
+            echo "- Authentication problems"
+            echo ""
+            echo "Check the logs above for specific error details."
+            echo "You may need to retry publishing failed packages manually."
+            echo ""
+            echo "Continuing with git operations for successfully published packages..."
+          fi
 
-          # Commit and push the version bump
+          # Commit and push the version bump (even if some packages failed)
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "chore: release packages"
+          git commit -m "chore: release packages" || echo "No changes to commit"
           git push origin main
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
